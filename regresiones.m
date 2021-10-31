@@ -3,6 +3,10 @@
 
 ## Guardar vectores en foma vertical EJEMPLO, antes de llamar la dunción : vector= [a; b; n];   n= número de elementos
 
+## ejemplo de como usar la función
+
+    ## >> regresión (matriz_x , matriz_y, #elementos ) matriz_x= valores de x, matriz_y = valores de y
+    
 function final= regresiones(x, y, n)
   clc;
   
