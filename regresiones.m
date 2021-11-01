@@ -194,7 +194,7 @@ function final= regresiones(x, y, n)
     fprintf('         ______________________________________________________________________________________________________________________________\n\n'); 
   
    
-%% REGRESIÓN EXPONENCIAL ----------------
+%% REGRESIÓN EXPONENCIAL
 %%Variables
    lnyT=0;
    xLnyT=0;
