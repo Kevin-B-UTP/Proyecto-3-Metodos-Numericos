@@ -193,62 +193,66 @@ function final= regresiones(x, y, n)
     fprintf('\n                                         ecuación:   (%8.4f x^2) + (%8.4f x )+(%8.4f) \n',a2, a1, a0);
     fprintf('         ______________________________________________________________________________________________________________________________\n\n'); 
   
-  ## REGRESIÓN EXPONENCIAL----------------------------------------------------------------------------------------------------------
-   ## ENCABEZADO
-      fprintf('\n\n\n\n                                      !!===================================!!');
-      fprintf('\n                                               REGRESION EXPONENCIAL');
-      fprintf('\n                                      !!===================================!!\n');
-      fprintf('\n             x     \t    y   \t    x^2  \t   lny \t          x * lny  \t(lny - p)^2 \n');
-      fprintf('         ________________________________________________________________________________________________\n'); 
-      
-   ## CALCULOS
-   for ciclo = 1 : n
-     sumalny += log(y(ciclo));
-   endfor
-   p = sumalny/n;
-   for ciclo = 1 : n
-      x_2   = x (ciclo) ^ 2;
-      lny   = log(y(ciclo));
-      x_lny = x(ciclo)*log(y(ciclo));
-      sumax_lny += x_lny;
-      lny_p = ( lny - p )^2;
-      sumalny_p2 += lny_p ;
-      fprintf('\n\t%9.4f\t%9.4f\t%9.4f\t%9.4f\t%9.4f\t%9.4f  \n', x(ciclo), y(ciclo), x_2, lny , x_lny,lny_p);
-   endfor
-   ## CALCULO MATRICES
-   matrizA         = [n , sumax; sumax, sumax_2];
-   matrizB         = [sumalny; sumax_lny];
-   matrizRespuesta = [inv(matrizA)*matrizB];
-   ## SACO VALORES
-   lna =  matrizRespuesta(1);
-   b   =  matrizRespuesta(2);
-   eLna = exp(lna);
    
-    ## CALCULOS DE UTLIMO CUADRO
-   fprintf('\n                                              (ln y - (ln a+bx))^2 ');
-   fprintf('\n                                        ___________________________________\n');
-   sumasUltimosValores =0;   
-   for ciclo = 1 : n
-       ultimoValor = (log(y(ciclo)) - (lna + b * x(ciclo)))^2;
-       sumasUltimosValores += ultimoValor;
-       fprintf('\n                                                  %8.9f \n',ultimoValor);
-   endfor
-   r2_e = (sumalny_p2 - sumasUltimosValores)/sumalny_p2;
-       
-       ## (OPCIONAL)
-       ##fprintf('\n                                             ==================== \n');
-       ##fprintf('\n                                              Suma: %8.9f \n',sumasUltimosValores);
-  
-  ## impresión
-   fprintf('         __________________________________________________________________________________________________________\n'); 
-   fprintf('\n                                                ln(a):   %8.4f', lna);
+%% REGRESIÓN EXPONENCIAL ----------------
+%%Variables
+   lnyT=0;
+   xLnyT=0;
+   lnyp2T=0;
+   ColumnaNo7Total=0;
+%%Calculos para la 4ta y 5ta Columna
+   for i = 1 : n
+     %%
+     lny(i) = log(y(i));
+     xlny(i) = x(i)*log(y(i));
+     lnyT += lny(i);
+     xLnyT += xlny(i);     
+   endfor 
+   
+%%Promedio de lny y sexta columna   
+   lnyProm= lnyT/n;
+   
+for i = 1 : n
+   lnyp2(i) = (lny(i)-lnyProm)^2;
+   lnyp2T += lnyp2(i);
+endfor 
+
+%%Matrices
+   mA         = [n , sumax; sumax, sumax_2];
+   mB         = [lnyT; xLnyT];
+   mT = [inv(mA)*mB];
+
+LnA= mT(1);
+b= mT(2);
+eLnA= exp(LnA);
+
+##Calculo para la 7ma Columna
+for i = 1 : n
+       ColumnaNo7(i) = (log(y(i)) - (LnA + b * x(i)))^2;
+       ColumnaNo7Total += ColumnaNo7(i);
+endfor
+%%Calculo de los coeficientes
+r2_e=  (lnyp2T - ColumnaNo7Total)/lnyp2T; 
+r_e= sqrt(r2_e);
+
+%%Impresion de la tabla y resultados
+ fprintf('\n\n\n\n                                      =======================================');
+      fprintf('\n                                               REGRESION EXPONENCIAL');
+      fprintf('\n                                      =======================================\n');
+      fprintf('\n             x     \t    y   \t    x^2  \t   lny \t          x * lny  \t(lny - p)^2 \t (ln y - (ln a+bx))^2');
+      fprintf('\n     ________________________________________________________________________________________________________________________\n'); 
+      for i= 1: n
+      fprintf('\n\t%9.4f\t%9.4f\t%9.4f\t%9.4f\t%9.4f\t%9.4f\t%8.9f\n', x(i), y(i), x2(i), lny(i) , xlny(i) ,lnyp2(i), ColumnaNo7(i));
+      endfor
+ fprintf('         __________________________________________________________________________________________________________\n'); 
+   fprintf('\n                                                ln(a):   %8.4f', LnA);
    fprintf('\n                                                   b :   %8.4f', b);
-   fprintf('\n                                            e^(ln(a)):   %8.4f',eLna);
+   fprintf('\n                                            e^(ln(a)):   %8.4f',eLnA);
    fprintf('\n                                                  r^2:   %8.9f',r2_e);
-   fprintf('\n                                                    r:   %8.9f\n\n',sqrt((sumalny_p2 - sumasUltimosValores)/sumalny_p2));
-   fprintf('\n                                    ecuación:   %8.4f e^(%8.4f x) \n',eLna, b);
-   fprintf('         __________________________________________________________________________________________________________\n\n'); 
-  
+   fprintf('\n                                                    r:   %8.9f\n\n',r_e);
+   fprintf('\n                                    ecuación:   %8.4f e^(%8.4f x) \n',eLnA, b);
+   fprintf('         __________________________________________________________________________________________________________\n\n');   
+
   ##CONDICIONES PARA SABER CUAL ES EL MEJOR MÉTODO
   control = 0;
   if( r2 == r2_p)
@@ -262,12 +266,8 @@ function final= regresiones(x, y, n)
      
     elseif( r2_p > r2 && r2_p > r2_e && r2 <= 1)
      fprintf("\n\n            SE RECOMIENDA UNA REGRESION POLINOMIAL DE 2DO GRADO QUE CUENTA CON UN R^2 DE: %10.9f \n\n", r2_p);
-     
     else
      fprintf("\n\n               SE RECOMIENDA UNA REGRESION EXPONENCIAL QUE CUENTA CON UN R^2 DE: %10.9f \n\n", r2_e);
     endif
-    
-  endif
-
-   
+    endif     
 endfunction
